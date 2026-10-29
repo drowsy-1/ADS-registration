@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADS Parentage Builder – demo</title>
+<link rel="stylesheet" href="../ads-parentage/assets/parentage-widget.css">
+<style>
+  :root { --global-palette1:#30595e; --global-palette2:#bee45f; --global-palette3:#1a202c; --global-palette5:#4a5568; }
+  body { font-family: Sora, system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; background: #f2f2f2; color: #1a202c; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .lede { color: #4a5568; margin: 0 0 20px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: #fff; border: 1px solid #c9d1d4; border-radius: 10px; padding: 16px; }
+  .card h2 { font-size: 1rem; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .04em; color: #4a5568; }
+  .gfield { margin-bottom: 14px; }
+  .gfield label { display: block; font-weight: 600; margin-bottom: 4px; }
+  .native { opacity: .85; }
+  .native .gfield { border: 1px dashed #c9d1d4; border-radius: 8px; padding: 8px 10px; }
+  .native input[type=radio] { margin-right: 4px; }
+  select { font: inherit; padding: 6px; width: 100%; }
+  .gform_footer { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  button.gf { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 40px; border: 0; cursor: pointer; background: #bee45f; color: #1a202c; }
+  button.gf.secondary { background: #7e7e7e; color: #fff; }
+  .approval { margin-top: 12px; }
+  pre, code.block { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; background: #f6f8f8; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; word-break: break-word; margin: 0 0 10px; display: block; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: .9rem; margin-bottom: 12px; }
+  .kv dt { font-weight: 600; color: #4a5568; } .kv dd { margin: 0; font-family: ui-monospace, Menlo, monospace; }
+  #log { max-height: 220px; overflow: auto; font-size: .8rem; }
+  #log div { padding: 2px 0; border-bottom: 1px solid #eee; }
+  .toggle { font-size: .85rem; margin-bottom: 10px; }
+  .pill { display: inline-block; font-size: .75rem; padding: 2px 8px; border-radius: 999px; background: #e3f3e8; color: #13612e; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ADS Parentage Builder <span class="pill">demo</span></h1>
+  <p class="lede">A stand-in for Gravity Form 15 with the real field ids. The registry lookup is mocked locally (≈400 ms latency, 50 per page, contains-match, sorted by id) so you can see debounce, abort, caching and prefix narrowing in the network log. Nothing here talks to daylilies.org.</p>
+
+  <div class="cols">
+    <div class="card">
+      <h2>Register Cultivar (form 15, parentage section)</h2>
+      <form id="gform_15" data-formid="15" onsubmit="return false;">
+        <div id="gform_fields_15">
+          <label class="toggle"><input type="checkbox" id="show-native" checked> Show the native fields the builder keeps in sync (hidden on the real site)</label>
+          <div class="native" id="native-wrap">
+            <div class="gfield" id="field_15_57"><label>Pod Parent Options (field 57)</label>
+              <label><input type="radio" name="input_57" value="Choose Pod Parent" id="choice_15_57_0"> Choose Pod Parent</label>
+              <label><input type="radio" name="input_57" value="Unknown" id="choice_15_57_1"> Unknown</label>
+              <label><input type="radio" name="input_57" value="sdlg" id="choice_15_57_2"> sdlg</label>
+            </div>
+            <div class="gfield" id="field_15_58"><label>Pollen Parent Options (field 58)</label>
+              <label><input type="radio" name="input_58" value="Choose Pollen Parent" id="choice_15_58_0"> Choose Pollen Parent</label>
+              <label><input type="radio" name="input_58" value="Unknown" id="choice_15_58_1"> Unknown</label>
+              <label><input type="radio" name="input_58" value="sdlg" id="choice_15_58_2"> sdlg</label>
+            </div>
+            <div class="gfield" id="field_15_38"><label for="input_15_38">Pod Parent (field 38, value = cultivar id)</label><select name="input_38" id="input_15_38"><option value=""></option></select></div>
+            <div class="gfield" id="field_15_39"><label for="input_15_39">Pollen Parent (field 39, value = cultivar id)</label><select name="input_39" id="input_15_39"><option value=""></option></select></div>
+          </div>
+
+          <div class="gfield ads-parentage-widget" id="field_15_62"><div class="ads-parentage-mount"></div></div>
+          <div class="gfield" id="field_15_60"><input type="hidden" name="input_60" id="input_15_60" class="gform_hidden" value=""></div>
+          <div class="gfield" id="field_15_61"><input type="hidden" name="input_61" id="input_15_61" class="gform_hidden" value=""></div>
+
+          <div class="gfield approval" id="field_15_43">
+            <label><input type="checkbox" id="choice_15_43_1" name="input_43.1" value="1"> Submit for Approval (the theme script clicks Submit when this is ticked)</label>
+          </div>
+        </div>
+        <div class="gform_footer">
+          <button type="button" class="gf" id="gform_submit_button_15" data-submission-type="submit" onclick="gform.submission.handleButtonClick(this);">Submit</button>
+          <button type="button" class="gf secondary" id="gform_save_15_footer_link" data-submission-type="save-continue" onclick="gform.submission.handleButtonClick(this);">Save Draft</button>
+          <button type="button" class="gf secondary" id="load-draft">Load a saved draft</button>
+          <input type="hidden" name="gform_save" id="gform_save_15" value="">
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>What the form will post</h2>
+      <dl class="kv">
+        <dt>input_57</dt><dd id="v57">–</dd>
+        <dt>input_58</dt><dd id="v58">–</dd>
+        <dt>input_38</dt><dd id="v38">–</dd>
+        <dt>input_39</dt><dd id="v39">–</dd>
+      </dl>
+      <h2>Hidden lineage string (field 60)</h2>
+      <code class="block" id="v60">(empty until valid)</code>
+      <h2>Hidden tree JSON (field 61)</h2>
+      <pre id="v61"></pre>
+      <h2>Mock network log</h2>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Stand-ins for what the real page provides -------------------------
+  window.GPPA = { NONCE: 'demo-nonce', AJAXURL: '/wp-admin/admin-ajax.php' };
+  window.gform = { submission: { handleButtonClick: function (btn) {
+    var type = btn.getAttribute('data-submission-type');
+    document.getElementById('gform_save_15').value = type === 'save-continue' ? '1' : '';
+    log('<b>Gravity Forms would now submit</b> (' + type + '). input_60 = ' + JSON.stringify(document.getElementById('input_15_60').value));
+    alert('Gravity Forms would now ' + (type === 'save-continue' ? 'save a draft' : 'submit the registration') + '.');
+  } } };
+  // The theme's cultivar-approval.js behaviour: ticking the box clicks Submit.
+  document.getElementById('choice_15_43_1').addEventListener('change', function () {
+    if (this.checked) { document.getElementById('gform_submit_button_15').click(); }
+  });
+  window.adsParentageConfig = {
+    formId: 15,
+    fields: { podMode: 57, pollenMode: 58, pod: 38, pollen: 39, widget: 62, string: 60, tree: 61 },
+    lookup: { strategy: 'gppa', fieldId: 38, pageSize: 50, minChars: 3, debounceMs: 350, ajaxUrl: '/wp-admin/admin-ajax.php' },
+    maxDepth: 4,
+    hideNativeFields: false
+  };
+
+  // ---- Mock registry (ids for the Heaven* names are the real ones from the HAR) ----
+  var NAMES = [[6548,'Canopy of Heaven'],[7997,'Edge of Heaven'],[9324,'Heaven All Day'],[9325,"Heaven's Accent"],[9326,"Heaven's Door"],[9327,"Heaven's Gate"],[9328,"Heaven's Glory-1997"],[9329,"Heaven's Mist"],[9330,"Heaven's Radiance"],[9331,"Heaven's Song"],[9332,'Heavenly Choir'],[9333,'Heavenly Delight'],[9334,'Heavenly Dreams'],[9335,'Heavenly Hash'],[9336,'Heavenly Horizons'],[9337,'Heavenly Pastel'],[9338,'Heavenly Persuasion'],[9339,'Heavenly Places'],[9340,'Heavenly Reward'],[9341,'Heavenly Shades'],[9342,'Heavenly Visitation'],[9345,'Heirloom Heaven'],[9400,'High Heaven'],[9755,'Indy Heaven'],[10755,'Southern Part of Heaven'],[11133,'Made in Heaven'],[11946,'New Heaven'],[12000,'Next to Heaven'],[14274,'Simply Heaven'],[14497,'Spacecoast Heavenly Frills'],[14601,'Stairway to Heaven'],[14871,'Sweet Love of Heaven'],[15098,'Ticket to Heaven'],[15266,'Treasures in Heaven'],[15854,'Wimberlyway Heavenly Blush'],[16546,'Almost Heaven'],[18941,'Blue Heaven'],[19322,'Breath of Heaven'],[21681,'Coed Heavenly Holly'],[23152,'Days of Heaven'],[27423,'Fire from Heaven'],[27861,'For Heaven Sake'],[28613,'Gates of Heaven'],[28618,'Gateway to Heaven'],[30934,'Heaven After Noon'],[30935,'Heaven and Earth'],[30937,'Heaven Bent'],[30938,'Heaven Blessed'],[30940,'Heaven Bound'],[30941,'Heaven Can Wait'],[30947,'Heavenly Abode'],[30949,'Heavenly Alchemy'],[30950,'Heavenly Angel'],[30951,'Heavenly Anthems'],[30953,'Heavenly Aura'],[30954,'Heavenly Blush'],[30955,'Heavenly Body'],[30956,'Heavenly Carved'],[30957,'Heavenly Companion'],[30959,'Heavenly Creation'],[30960,'Heavenly Crown'],[30962,'Heavenly Days'],[30963,'Heavenly Dragon'],[30965,'Heavenly Father'],[30966,'Heavenly Gem'],[30967,'Heavenly Gift'],[30969,'Heavenly Grace'],[30971,'Heavenly Guide'],[30973,'Heavenly Halo'],[30974,'Heavenly Handiwork'],[30975,'Heavenly Harmony'],[30977,'Heavenly Harp'],[30979,'Heavenly Haviland'],[30981,'Heavenly Haviland Baby'],[30982,'Heavenly Hope'],[30984,'Heavenly Lace'],[30985,'Heavenly Light'],[30986,'Heavenly Moon'],[30987,'Heavenly Morning'],[30988,'Heavenly Peace'],[30989,'Heavenly Pink'],[30990,'Heavenly Promise'],[30991,'Heavenly Renee'],[30992,'Heavenly Sculpture'],[30993,'Heavenly Sunlight'],[30995,'Heavenly Sunshine'],[41001,'Stella de Oro'],[41002,'Stella Supreme'],[41010,'Siloam Double Classic'],[41011,'Siloam Ury Winniford'],[41020,'Ruby Spider'],[41021,'Ruby Stella'],[41030,'Lavender Blue Baby'],[41031,'Lavender Deal'],[41040,'Out of Balance'],[41041,'Electric Snake'],[41042,'Angels in the House'],[41043,'Harold Steen'],[41044,'How the Light Gets In'],[41045,'Copper Miner'],[41046,'Cosmic Kaleidoscope'],[41047,'Marse Connell'],[41048,'Lilly Dache'],[41049,'Unknown Soldier'],[91789,"'S Wonderful, 'S Marvelous"],[146593,'Big Ass Pink Elephant'],[174718,'Big Ass Pink']];
+
+  var realFetch = window.fetch.bind(window);
+  var callNo = 0;
+  window.fetch = function (url, init) {
+    if (String(url).indexOf('gp_advanced_select_get_gppa_results') < 0) { return realFetch(url, init); }
+    var body = JSON.parse(init.body), term = String(body.term).toLowerCase(), page = body.page || 1, n = ++callNo;
+    log('#' + n + ' POST gp_advanced_select_get_gppa_results term=' + JSON.stringify(body.term) + (page > 1 ? ' page=' + page : '') + ' field-values keys=' + Object.keys(body['field-values']).length);
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        var all = NAMES.filter(function (p) { return p[1].toLowerCase().indexOf(term) >= 0; }).sort(function (a, b) { return a[0] - b[0]; });
+        var slice = all.slice((page - 1) * 50, page * 50);
+        var json = { results: slice.map(function (p) { return { id: String(p[0]), text: p[1] }; }), pagination: { nextPage: all.length > page * 50 ? page + 1 : null } };
+        log('#' + n + ' → ' + json.results.length + ' results' + (json.pagination.nextPage ? ' (more pages)' : ''));
+        resolve({ ok: true, status: 200, json: function () { return Promise.resolve(json); } });
+      }, 400);
+      if (init.signal) { init.signal.addEventListener('abort', function () { clearTimeout(timer); log('#' + n + ' aborted (stale keystroke)'); var e = new Error('aborted'); e.name = 'AbortError'; reject(e); }); }
+    });
+  };
+
+  function log(msg) { var el = document.getElementById('log'); var d = document.createElement('div'); d.innerHTML = msg; el.prepend(d); }
+
+  // ---- Live view of what would be posted ----------------------------------
+  function refresh() {
+    function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : '(none)'; }
+    function sel(id) { var s = document.getElementById(id); var o = s.options[s.selectedIndex]; return s.value ? s.value + '  (' + (o ? o.text : '') + ')' : '(empty)'; }
+    document.getElementById('v57').textContent = radio('input_57');
+    document.getElementById('v58').textContent = radio('input_58');
+    document.getElementById('v38').textContent = sel('input_15_38');
+    document.getElementById('v39').textContent = sel('input_15_39');
+    var s = document.getElementById('input_15_60').value; document.getElementById('v60').textContent = s || '(empty until valid)';
+    var t = document.getElementById('input_15_61').value; try { document.getElementById('v61').textContent = t ? JSON.stringify(JSON.parse(t), null, 2) : ''; } catch (e) { document.getElementById('v61').textContent = t; }
+  }
+  setInterval(refresh, 300);
+  document.getElementById('show-native').addEventListener('change', function () { document.getElementById('native-wrap').style.display = this.checked ? '' : 'none'; });
+  document.getElementById('load-draft').addEventListener('click', function () {
+    var C = window.ADSParentageCore;
+    var tree = C.cross(C.cross(C.registered(41001, 'Stella de Oro'), C.registered(9333, 'Heavenly Delight')), C.cross(C.registered(41041, 'Electric Snake'), C.sdlg()));
+    window.ADSParentage.instances[15].setTree(tree);
+    log('<b>Draft loaded</b>: ' + C.render(tree));
+  });
+</script>
+<script src="../ads-parentage/assets/parentage-core.js"></script>
+<script src="../ads-parentage/assets/parentage-widget.js"></script>
+</body>
+</html>

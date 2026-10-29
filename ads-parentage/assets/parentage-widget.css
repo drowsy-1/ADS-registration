@@ -1,0 +1,105 @@
+/* ADS Parentage builder – scoped to .adsp; inherits the Kadence palette when present. */
+.adsp-native-hidden { display: none !important; }
+
+.adsp {
+  --adsp-accent: var(--global-palette1, #30595e);
+  --adsp-accent-soft: color-mix(in srgb, var(--adsp-accent) 10%, #fff);
+  --adsp-highlight: var(--global-palette2, #bee45f);
+  --adsp-text: var(--global-palette3, #1a202c);
+  --adsp-muted: var(--global-palette5, #4a5568);
+  --adsp-border: #c9d1d4;
+  --adsp-error: #b82105;
+  --adsp-ok: #13612e;
+  --adsp-radius: 10px;
+  font-size: 1rem;
+  color: var(--adsp-text);
+  border: 1px solid var(--adsp-border);
+  border-radius: var(--adsp-radius);
+  padding: 20px;
+  background: #fff;
+}
+@supports not (color: color-mix(in srgb, #000 10%, #fff)) {
+  .adsp { --adsp-accent-soft: #eaf0f1; }
+}
+.adsp *, .adsp *::before, .adsp *::after { box-sizing: border-box; }
+.adsp__title { font-weight: 600; font-size: 1.375rem; margin: 0 0 4px; }
+.adsp__help { margin: 0 0 18px; color: var(--adsp-muted); font-size: 0.95rem; line-height: 1.55; }
+
+/* Cross = pod × pollen row */
+.adsp-cross__row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: start; }
+.adsp-cross__op { align-self: center; font-size: 2rem; font-weight: 700; color: var(--adsp-accent); line-height: 1; padding-top: 28px; }
+.adsp-cross[data-depth="2"], .adsp-cross[data-depth="3"], .adsp-cross[data-depth="4"] {
+  margin-top: 10px; padding: 12px; border-left: 4px solid var(--adsp-accent); border-radius: 0 var(--adsp-radius) var(--adsp-radius) 0; background: var(--adsp-accent-soft);
+}
+.adsp-cross[data-depth="3"] { border-left-color: #7fa02e; }
+.adsp-cross[data-depth="4"] { border-left-color: #f5a524; }
+.adsp-cross__caption { font-size: 0.85rem; font-weight: 600; color: var(--adsp-muted); margin: 0 0 8px; }
+/* A row that contains a nested cross stacks pod above pollen so the nested generations get full width. */
+.adsp-cross__row--stacked { grid-template-columns: minmax(0, 1fr); }
+.adsp-cross__row--stacked > .adsp-cross__op { padding: 0; justify-self: center; }
+@media (max-width: 700px) {
+  .adsp-cross__row { grid-template-columns: minmax(0, 1fr); }
+  .adsp-cross__op { padding: 0; text-align: center; justify-self: center; }
+}
+
+/* Slot */
+.adsp-slot { border: 1px solid var(--adsp-border); border-radius: var(--adsp-radius); padding: 12px; background: #fff; min-width: 0; }
+.adsp-slot.is-invalid { border-color: var(--adsp-error); box-shadow: 0 0 0 3px rgba(184, 33, 5, 0.12); }
+.adsp-slot__label { font-weight: 600; margin-bottom: 8px; }
+.adsp-modes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.adsp .adsp-mode {
+  font: inherit; font-size: 0.875rem; font-weight: 600; line-height: 1.2; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--adsp-border); background: #fff; color: var(--adsp-text); box-shadow: none; margin: 0;
+}
+.adsp .adsp-mode:hover:not(:disabled), .adsp .adsp-mode:focus-visible { border-color: var(--adsp-accent); background: var(--adsp-accent-soft); color: var(--adsp-text); }
+.adsp .adsp-mode.is-active { background: var(--adsp-accent); border-color: var(--adsp-accent); color: #fff; }
+.adsp .adsp-mode:disabled { opacity: 0.45; cursor: not-allowed; }
+.adsp .adsp-mode--sdlg, .adsp .adsp-mode--unknown { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: none; }
+.adsp-slot__body { min-width: 0; }
+.adsp-slot__note { margin: 0; font-size: 0.9rem; color: var(--adsp-muted); }
+.adsp-slot__note--prompt { font-style: italic; }
+
+/* Lookup combobox */
+.adsp-lookup { position: relative; }
+.adsp .adsp-lookup__input { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--adsp-border); border-radius: 6px; background: #fff; }
+.adsp .adsp-lookup__input:focus { outline: 2px solid var(--adsp-accent); outline-offset: 1px; border-color: var(--adsp-accent); }
+.adsp-lookup__list {
+  position: absolute; z-index: 50; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  max-height: 280px; overflow-y: auto; background: #fff; border: 1px solid var(--adsp-border); border-radius: 8px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+.adsp-lookup__list[hidden] { display: none; }
+.adsp-lookup__option { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.adsp-lookup__option.is-active, .adsp-lookup__option:hover { background: var(--adsp-accent-soft); }
+.adsp-lookup__badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--adsp-ok); background: #e3f3e8; padding: 2px 6px; border-radius: 999px; white-space: nowrap; }
+.adsp-lookup__more { padding: 4px; }
+.adsp .adsp-lookup__morebtn, .adsp .adsp__fix, .adsp .adsp-chip__change {
+  font: inherit; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--adsp-border); background: #fff; color: var(--adsp-accent); cursor: pointer; box-shadow: none; margin: 0;
+}
+.adsp .adsp-lookup__morebtn { width: 100%; }
+.adsp-lookup__status { margin-top: 6px; font-size: 0.85rem; color: var(--adsp-muted); min-height: 1.2em; }
+
+/* Committed registered cultivar */
+.adsp-chip { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px; border-radius: 8px; background: #e3f3e8; border: 1px solid #b9dec6; }
+.adsp-chip__check { color: var(--adsp-ok); font-weight: 700; }
+.adsp-chip__name { font-weight: 600; }
+.adsp-chip__id { font-size: 0.75rem; color: var(--adsp-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.adsp .adsp-chip__change { margin-left: auto; }
+
+/* Preview and status */
+.adsp__preview { margin-top: 18px; padding: 12px 14px; border-radius: 8px; background: #f6f8f8; border: 1px dashed var(--adsp-border); }
+.adsp__preview-label { display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--adsp-muted); margin-bottom: 4px; }
+.adsp .adsp__string { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.05rem; line-height: 1.6; background: none; padding: 0; color: var(--adsp-text); word-break: break-word; }
+.adsp__times { color: var(--adsp-accent); font-weight: 700; }
+.adsp__paren { color: var(--adsp-muted); }
+.adsp__literal { color: #7a4b00; }
+.adsp__missing { color: var(--adsp-error); font-weight: 700; }
+.adsp__native { margin-top: 8px; font-size: 0.85rem; color: var(--adsp-muted); }
+.adsp__native-label { font-weight: 600; margin-right: 6px; }
+.adsp__status { margin-top: 12px; font-size: 0.95rem; }
+.adsp__status.is-ok { color: var(--adsp-ok); font-weight: 600; }
+.adsp__status.is-pending { color: var(--adsp-muted); }
+.adsp__status.is-error { color: var(--adsp-error); }
+.adsp__blocked { font-weight: 600; margin-bottom: 6px; }
+.adsp__errors { margin: 0; padding-left: 20px; }
+.adsp__errors li { margin: 2px 0; }
+.ads-parentage-error { margin-bottom: 1rem; }
